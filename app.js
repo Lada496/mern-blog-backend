@@ -17,6 +17,7 @@ require("./middleware/authenticate");
 
 //import router here
 const usersRoutes = require("./routes/users.route");
+const postsRoutes = require("./routes/posts.route");
 
 const app = express();
 
@@ -59,6 +60,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/users", usersRoutes);
+app.use("/api/posts", postsRoutes);
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route.", 404);

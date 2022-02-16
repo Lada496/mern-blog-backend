@@ -1,0 +1,173 @@
+const fs = require("fs");
+
+const { varidationResult } = require("express-validator");
+const mongoose = require("mongoose");
+
+const HttpError = require("../models/http-error");
+const Post = require("../models/post");
+const User = require("../models/user");
+const Comment = require("../models/comment");
+
+exports.getAllPosts = (req, res, next) => {
+  Post.find((err, data) => {
+    if (err) {
+      const error = new HttpError(
+        "Something went wrong, could not find posts.",
+        500
+      );
+      return next(error);
+    }
+    console.log(data);
+    res.json({ posts: data.map((post) => post.toObject({ getters: true })) });
+  });
+};
+
+exports.getPostsByUserId = async (req, res, next) => {
+  const userId = req.params.uid;
+  let userWithPosts;
+  try {
+    userWithPosts = await User.findById(userId).populate("posts");
+  } catch (err) {
+    const error = new HttpError(
+      "Fetching posts failed, please try again later.",
+      500
+    );
+    return next(error);
+  }
+  if (!userWithPosts || userWithPosts.posts.length === 0) {
+    return next(
+      new HttpError("Could not find places for the provided user id.", 404)
+    );
+  }
+  res.json({
+    posts: userWithPosts.posts.map((post) => post.toObject({ getters: true })),
+  });
+};
+
+exports.postPost = async (req, res, next) => {
+  console.log(req.body);
+  //   const errors = varidationResult(req);
+  //   if (!errors.isEmpty()) {
+  //     return next(
+  //       new HttpError("Invalid inputs passed, please check your data.", 422)
+  //     );
+  //   }
+  const { title, body, date, name, userId } = req.body;
+  const createdPost = new Post({
+    title,
+    body,
+    name,
+    date,
+    image: req.file.path,
+    userId,
+  });
+
+  let user;
+  try {
+    user = await User.findById(req.userId);
+  } catch (err) {
+    const error = new HttpError("Creating post failed, please try again.", 500);
+    return next(error);
+  }
+  if (!user) {
+    const error = new HttpError("Could not find user for provided id.", 404);
+    return next(error);
+  }
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await createdPost.save({ session: sess });
+    user.posts.push(createdPost);
+    await user.save({ session: sess });
+    await sess.commitTransaction();
+  } catch (err) {
+    const error = new HttpError(
+      "Creating place failed, please try again.",
+      500
+    );
+    return next(error);
+  }
+  res.status(201).json({ post: createdPost });
+};
+exports.postEditPost = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
+  }
+  const { title, body } = req.body;
+  const postId = req.params.pid;
+
+  let post;
+  try {
+    post = await Post.findById(postId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not update place.",
+      500
+    );
+    return next(error);
+  }
+  if (post.userId.toString() !== req.userId) {
+    const error = new HttpError("You are not allowed to edit this post.", 401);
+    return next(error);
+  }
+  place.title = title;
+  place.description = description;
+  try {
+    await post.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not update post.",
+      500
+    );
+    return next(error);
+  }
+  res.status(200).json({ post: post.toObject({ getters: true }) });
+};
+
+exports.deletePost = async (req, res, next) => {
+  const postId = req.params.pid;
+
+  let post;
+  try {
+    post = await Post.findById(post).populate("userId");
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not delete post.",
+      500
+    );
+    return next(error);
+  }
+  if (!post) {
+    const error = new HttpError("Could not find post for this id.", 404);
+    return next(error);
+  }
+  if (post.userId.id !== req.userId) {
+    const error = new HttpError(
+      "You are not allowed to delete this place.",
+      401
+    );
+    return next(error);
+  }
+  const imagePath = post.image;
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await post.remove({ session: sess });
+    post.userId.posts.pull(post);
+    await post.userId.save({ session: sess });
+    await sess.commitTransaction();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not delete post.",
+      500
+    );
+    return next(error);
+  }
+  fs.unlink(imagePath, (err) => {
+    console.log(err);
+  });
+  res.status(200).json({ message: "Deleted post." });
+};

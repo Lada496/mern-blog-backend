@@ -1,31 +1,28 @@
-const passport = require("passport");
-const jwt = require("jsonwebtoken");
-const dev = process.env.NODE_ENV !== "production";
+const multer = require("multer");
+const uuid = require("uuid").v1();
 
-//for creating the refresh token cookie
-exports.COOKIE_OPTIONS = {
-  httpOnly: true,
-  // secure: !dev, //for API tool (postman/insomnia)
-  secure: dev,
-  signed: true,
-  maxAge: eval(process.env.REFRESH_TOKEN_EXPIRY) * 1000,
-  sameSite: "none",
+const MIME_TYPE_MAP = {
+  "image/png": "png",
+  "image/jpeg": "jpeg",
+  "image/jpg": "jpg",
 };
 
-//to create the JWT
-exports.getToken = (user) => {
-  return jwt.sign(user, process.env.JWT_SECRET, {
-    expiresIn: eval(process.env.SESSION_EXPIRY),
-  });
-};
+const fileUpload = multer({
+  limits: 500000,
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "uploads/images");
+    },
+    filename: (req, file, cb) => {
+      const ext = MIME_TYPE_MAP[file.mimetype];
+      cb(null, uuid() + "." + ext);
+    },
+  }),
+  fileFilter: (req, file, cb) => {
+    const isValid = !!MIME_TYPE_MAP[file.mimetype];
+    let error = isValid ? null : new Error("Invalid mime type!");
+    cb(error, isValid);
+  },
+});
 
-//to create a refresh token
-exports.getRefreshToken = (user) => {
-  const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: eval(process.env.REFRESH_TOKEN_EXPIRY),
-  });
-  return refreshToken;
-};
-
-//to be called for every authenticated request
-exports.verifyUser = passport.authenticate("jwt", { session: false });
+module.exports = fileUpload;
