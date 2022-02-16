@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const { varidationResult } = require("express-validator");
+const { validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 
 const HttpError = require("../models/http-error");
@@ -23,7 +23,8 @@ exports.getAllPosts = (req, res, next) => {
 };
 
 exports.getPostsByUserId = async (req, res, next) => {
-  const userId = req.params.uid;
+  //   const userId = req.params.uid;
+  const { _id: userId } = req.user;
   let userWithPosts;
   try {
     userWithPosts = await User.findById(userId).populate("posts");
@@ -45,26 +46,26 @@ exports.getPostsByUserId = async (req, res, next) => {
 };
 
 exports.postPost = async (req, res, next) => {
-  console.log(req.body);
-  //   const errors = varidationResult(req);
-  //   if (!errors.isEmpty()) {
-  //     return next(
-  //       new HttpError("Invalid inputs passed, please check your data.", 422)
-  //     );
-  //   }
-  const { title, body, date, name, userId } = req.body;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
+  }
+  const { title, body, date, image } = req.body;
+  const { name, _id: userId } = req.user;
   const createdPost = new Post({
     title,
     body,
     name,
     date,
-    image: req.file.path,
+    image,
     userId,
   });
 
   let user;
   try {
-    user = await User.findById(req.userId);
+    user = await User.findById(userId);
   } catch (err) {
     const error = new HttpError("Creating post failed, please try again.", 500);
     return next(error);
@@ -98,6 +99,7 @@ exports.postEditPost = async (req, res, next) => {
   }
   const { title, body } = req.body;
   const postId = req.params.pid;
+  const { _id: userId } = req.user;
 
   let post;
   try {
@@ -109,12 +111,12 @@ exports.postEditPost = async (req, res, next) => {
     );
     return next(error);
   }
-  if (post.userId.toString() !== req.userId) {
+  if (post.userId.toString() !== userId) {
     const error = new HttpError("You are not allowed to edit this post.", 401);
     return next(error);
   }
-  place.title = title;
-  place.description = description;
+  post.title = title;
+  post.body = body;
   try {
     await post.save();
   } catch (err) {
@@ -132,7 +134,7 @@ exports.deletePost = async (req, res, next) => {
 
   let post;
   try {
-    post = await Post.findById(post).populate("userId");
+    post = await Post.findById(postId).populate("userId");
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not delete post.",
@@ -144,7 +146,8 @@ exports.deletePost = async (req, res, next) => {
     const error = new HttpError("Could not find post for this id.", 404);
     return next(error);
   }
-  if (post.userId.id !== req.userId) {
+  ///!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  if (post.userId.id !== userId) {
     const error = new HttpError(
       "You are not allowed to delete this place.",
       401
