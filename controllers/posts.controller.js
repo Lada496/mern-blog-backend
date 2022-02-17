@@ -22,7 +22,29 @@ exports.getAllPosts = (req, res, next) => {
   });
 };
 
-exports.getPostsByUserId = async (req, res, next) => {
+exports.getPostById = async (req, res, next) => {
+  const postId = req.params.pid;
+  let post;
+  try {
+    post = await Post.findById(postId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not find a post.",
+      500
+    );
+    return next(error);
+  }
+  if (!post) {
+    const error = new HttpError(
+      "Could not find post for the provided id.",
+      404
+    );
+    return next(error);
+  }
+  res.json({ post: post.toObject({ getters: true }) });
+};
+
+exports.getMyPosts = async (req, res, next) => {
   //   const userId = req.params.uid;
   const { _id: userId } = req.user;
   let userWithPosts;

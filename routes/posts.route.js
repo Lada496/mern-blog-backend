@@ -8,7 +8,8 @@ const router = express.Router();
 
 router.get("/", postsController.getAllPosts);
 // router.get("/user/:uid", postsController.getPostsByUserId);
-router.get("/myposts", verifyUser, postsController.getPostsByUserId);
+router.get("/:pid", postsController.getPostById);
+router.get("/myposts/posts", verifyUser, postsController.getMyPosts);
 
 router.post(
   "/",
