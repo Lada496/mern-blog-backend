@@ -24,5 +24,16 @@ router.post(
   ],
   postsController.postPost
 );
+router.post(
+  "/:pid",
+  verifyUser,
+  [
+    check("title").not().isEmpty(),
+    check("body").isLength({ min: 5 }),
+    check("date").not().isEmpty(),
+    check("image").not().isEmpty(),
+  ],
+  postsController.postEditPost
+);
 
 module.exports = router;

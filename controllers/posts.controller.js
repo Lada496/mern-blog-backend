@@ -7,6 +7,7 @@ const HttpError = require("../models/http-error");
 const Post = require("../models/post");
 const User = require("../models/user");
 const Comment = require("../models/comment");
+const { prototype } = require("events");
 
 exports.getAllPosts = (req, res, next) => {
   Post.find((err, data) => {
@@ -17,7 +18,7 @@ exports.getAllPosts = (req, res, next) => {
       );
       return next(error);
     }
-    console.log(data);
+    // console.log(data);
     res.json({ posts: data.map((post) => post.toObject({ getters: true })) });
   });
 };
@@ -119,7 +120,7 @@ exports.postEditPost = async (req, res, next) => {
       new HttpError("Invalid inputs passed, please check your data.", 422)
     );
   }
-  const { title, body } = req.body;
+  const { title, body, image, date } = req.body;
   const postId = req.params.pid;
   const { _id: userId } = req.user;
 
@@ -133,12 +134,14 @@ exports.postEditPost = async (req, res, next) => {
     );
     return next(error);
   }
-  if (post.userId.toString() !== userId) {
+  if (post.userId.toString() !== userId.toString()) {
     const error = new HttpError("You are not allowed to edit this post.", 401);
     return next(error);
   }
   post.title = title;
   post.body = body;
+  post.image = image;
+  post.date = date;
   try {
     await post.save();
   } catch (err) {
