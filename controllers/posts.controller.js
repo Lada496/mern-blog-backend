@@ -156,6 +156,8 @@ exports.postEditPost = async (req, res, next) => {
 
 exports.deletePost = async (req, res, next) => {
   const postId = req.params.pid;
+  console.log(postId);
+  const { _id: userId } = req.user;
 
   let post;
   try {
@@ -171,15 +173,15 @@ exports.deletePost = async (req, res, next) => {
     const error = new HttpError("Could not find post for this id.", 404);
     return next(error);
   }
-  ///!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  if (post.userId.id !== userId) {
+
+  if (post.userId.id !== userId.toString()) {
     const error = new HttpError(
       "You are not allowed to delete this place.",
       401
     );
     return next(error);
   }
-  const imagePath = post.image;
+  //   const imagePath = post.image;
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -194,8 +196,8 @@ exports.deletePost = async (req, res, next) => {
     );
     return next(error);
   }
-  fs.unlink(imagePath, (err) => {
-    console.log(err);
-  });
+  //   fs.unlink(imagePath, (err) => {
+  //     console.log(err);
+  //   });
   res.status(200).json({ message: "Deleted post." });
 };

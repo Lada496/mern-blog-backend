@@ -36,4 +36,6 @@ router.post(
   postsController.postEditPost
 );
 
+router.delete("/:pid", verifyUser, postsController.deletePost);
+
 module.exports = router;
