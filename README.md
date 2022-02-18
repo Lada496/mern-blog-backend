@@ -51,6 +51,16 @@ body example
   "date":"2022-02-18",
 }
 ```
+#### edit a post
+`POST backendUrl/api/posts/:pid`
+```
+{
+  "title":"Test",
+  "body":"At least 5 letters required",
+  "image":"imageUrl",
+  "date":"2022-02-18",
+}
+```
 #### delete a post
 `DELETE backendUrl/api/posts/:pid`
 ### Comment
