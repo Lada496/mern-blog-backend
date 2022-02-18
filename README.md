@@ -4,6 +4,8 @@
 - User: includes array of Session and array of Post Id
 - Post: inclues one unique User Id and array of Comment Id
 - Comment: includes Post Id
+<img width="820" alt="Screen Shot 2022-02-18 at 9 35 07" src="https://user-images.githubusercontent.com/67321065/154739966-9d2a58b0-8a06-4540-b32f-0a56a263ef2b.png">
+
 
 ## APIs
 ### User
@@ -56,6 +58,7 @@ body example
 `GET backendUrl/api/comments/:pid`
 #### post a comment (requires auth wiht Bearer Token)
 `POST backendUrl/api/comments/:pid` <br />
+body example
 ```
 {
   "comment":"your comment",
