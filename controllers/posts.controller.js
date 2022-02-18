@@ -7,7 +7,6 @@ const HttpError = require("../models/http-error");
 const Post = require("../models/post");
 const User = require("../models/user");
 const Comment = require("../models/comment");
-const { prototype } = require("events");
 
 exports.getAllPosts = (req, res, next) => {
   Post.find((err, data) => {
