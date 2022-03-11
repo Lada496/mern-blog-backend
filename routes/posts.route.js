@@ -35,6 +35,7 @@ router.post(
   ],
   postsController.postEditPost
 );
+router.patch("/likes/:pid", postsController.updateLikes);
 
 router.delete("/:pid", verifyUser, postsController.deletePost);
 
