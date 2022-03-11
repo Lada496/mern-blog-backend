@@ -6,20 +6,21 @@ const mongoose = require("mongoose");
 const HttpError = require("../models/http-error");
 const Post = require("../models/post");
 const User = require("../models/user");
-const Comment = require("../models/comment");
 
 exports.getAllPosts = (req, res, next) => {
-  Post.find((err, data) => {
-    if (err) {
-      const error = new HttpError(
-        "Something went wrong, could not find posts.",
-        500
-      );
-      return next(error);
-    }
-    // console.log(data);
-    res.json({ posts: data.map((post) => post.toObject({ getters: true })) });
-  });
+  Post.find()
+    .sort({ _id: -1 })
+    .find((err, data) => {
+      if (err) {
+        const error = new HttpError(
+          "Something went wrong, could not find posts.",
+          500
+        );
+        return next(error);
+      }
+      // console.log(data);
+      res.json({ posts: data.map((post) => post.toObject({ getters: true })) });
+    });
 };
 
 exports.getPostById = async (req, res, next) => {
@@ -49,7 +50,12 @@ exports.getMyPosts = async (req, res, next) => {
   const { _id: userId } = req.user;
   let userWithPosts;
   try {
-    userWithPosts = await User.findById(userId).populate("posts");
+    userWithPosts = await User.findById(userId).populate({
+      path: "posts",
+      options: {
+        sort: { _id: -1 },
+      },
+    });
   } catch (err) {
     const error = new HttpError(
       "Fetching posts failed, please try again later.",
@@ -58,6 +64,32 @@ exports.getMyPosts = async (req, res, next) => {
     return next(error);
   }
   if (!userWithPosts || userWithPosts.posts.length === 0) {
+    return next(
+      new HttpError("Could not find places for the provided user id.", 404)
+    );
+  }
+  res.json({
+    posts: userWithPosts.posts.map((post) => post.toObject({ getters: true })),
+  });
+};
+exports.getPostsByUserId = async (req, res, next) => {
+  const userId = req.params.uid;
+  let userWithPosts;
+  try {
+    userWithPosts = await User.findById(userId).populate({
+      path: "posts",
+      options: {
+        sort: { _id: -1 },
+      },
+    });
+  } catch (err) {
+    const error = new HttpError(
+      "Fetching posts failed, please try again later",
+      500
+    );
+    return next(error);
+  }
+  if (!userWithPosts) {
     return next(
       new HttpError("Could not find places for the provided user id.", 404)
     );
@@ -155,7 +187,6 @@ exports.postEditPost = async (req, res, next) => {
 
 exports.deletePost = async (req, res, next) => {
   const postId = req.params.pid;
-  console.log(postId);
   const { _id: userId } = req.user;
 
   let post;

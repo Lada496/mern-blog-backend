@@ -7,8 +7,9 @@ const { verifyUser } = require("../middleware/authenticate");
 const router = express.Router();
 
 router.get("/", postsController.getAllPosts);
-// router.get("/user/:uid", postsController.getPostsByUserId);
+router.get("/user/:uid", postsController.getPostsByUserId);
 router.get("/:pid", postsController.getPostById);
+
 router.get("/myposts/posts", verifyUser, postsController.getMyPosts);
 
 router.post(
