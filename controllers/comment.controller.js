@@ -9,7 +9,12 @@ exports.getCommentByPostId = async (req, res, next) => {
   const postId = req.params.pid;
   let postWithComments;
   try {
-    postWithComments = await Post.findById(postId).populate("comments");
+    postWithComments = await Post.findById(postId).populate({
+      path: "comments",
+      options: {
+        sort: { _id: -1 },
+      },
+    });
   } catch (err) {
     const error = new HttpError(
       "Fetching comments failed, please try again later.",
