@@ -200,3 +200,35 @@ exports.deletePost = async (req, res, next) => {
   //   });
   res.status(200).json({ message: "Deleted post." });
 };
+
+exports.updateLikes = async (req, res, next) => {
+  const postId = req.params.pid;
+  const { userId } = req.body;
+  let post;
+  try {
+    post = await Post.findById(postId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not update like.",
+      500
+    );
+    return next(error);
+  }
+
+  const userIdIndex = post.likes.indexOf(userId.toString());
+  if (userIdIndex === -1) {
+    post.likes.push(userId);
+  } else {
+    post.likes.pull(userId);
+  }
+  try {
+    await post.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not update likes.",
+      500
+    );
+    return next(error);
+  }
+  res.status(200).json({ post: post.toObject({ getters: true }) });
+};

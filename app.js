@@ -82,7 +82,7 @@ app.use((error, req, res, next) => {
   res.json({ message: error.message || "An unknown error occurred!" });
 });
 
-const server = app.listen(process.env.PORT || 8000, () => {
+const server = app.listen(process.env.PORT || 8001, () => {
   const port = server.address().port;
   console.log("App started at port: ", port);
 });
