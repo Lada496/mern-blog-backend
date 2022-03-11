@@ -6,7 +6,8 @@
 - User: includes array of Session and array of Post Id
 - Post: inclues one unique User Id and array of Comment Id
 - Comment: includes Post Id
-  <img width="820" alt="Screen Shot 2022-02-18 at 9 35 07" src="https://user-images.githubusercontent.com/67321065/154739966-9d2a58b0-8a06-4540-b32f-0a56a263ef2b.png">
+  <img width="772" alt="Screen Shot 2022-03-11 at 9 40 30" src="https://user-images.githubusercontent.com/67321065/157935599-631459c0-b5c8-4c8d-b8cf-56ba94f808f1.png">
+
 
 ## APIs
 
@@ -28,7 +29,7 @@ body example
 #### login
 
 `POST backendUrl/api/users/login` <br />
-
+body example
 ```
 {
   "username":"requirement@email.address",
@@ -77,9 +78,8 @@ body example
 ```
 
 #### edit a post
-
-`POST backendUrl/api/posts/:pid`
-
+`POST backendUrl/api/posts/:pid` <br />
+body example
 ```
 {
   "title":"Test",
@@ -92,6 +92,16 @@ body example
 #### delete a post
 
 `DELETE backendUrl/api/posts/:pid`
+
+#### update likes
+`PATCH backendUrl/api/posts/likes/:pid` <br />
+body example
+```
+ {
+  "userId":"StringUserId"
+ }
+```
+
 
 ### Comment
 
