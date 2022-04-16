@@ -14,10 +14,7 @@ const User = new Schema({
     type: String,
     default: "",
   },
-  //   lastName: {
-  //     type: String,
-  //     default: "",
-  //   },
+
   authStrategy: {
     type: String,
     default: "local",

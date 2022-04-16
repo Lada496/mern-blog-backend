@@ -1,5 +1,3 @@
-const fs = require("fs");
-
 const { validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 
@@ -18,7 +16,6 @@ exports.getAllPosts = (req, res, next) => {
         );
         return next(error);
       }
-      // console.log(data);
       res.json({ posts: data.map((post) => post.toObject({ getters: true })) });
     });
 };
@@ -46,7 +43,6 @@ exports.getPostById = async (req, res, next) => {
 };
 
 exports.getMyPosts = async (req, res, next) => {
-  //   const userId = req.params.uid;
   const { _id: userId } = req.user;
   let userWithPosts;
   try {
@@ -211,7 +207,6 @@ exports.deletePost = async (req, res, next) => {
     );
     return next(error);
   }
-  //   const imagePath = post.image;
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -226,9 +221,6 @@ exports.deletePost = async (req, res, next) => {
     );
     return next(error);
   }
-  //   fs.unlink(imagePath, (err) => {
-  //     console.log(err);
-  //   });
   res.status(200).json({ message: "Deleted post." });
 };
 

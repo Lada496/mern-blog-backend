@@ -1,5 +1,4 @@
 const { validationResult } = require("express-validator");
-const passport = require("passport");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
@@ -108,30 +107,32 @@ exports.refreshToken = (req, res, next) => {
   }
 };
 
-exports.getMyData = (req,res,next) => {
-    res.send(req.user)
-}
+exports.getMyData = (req, res, next) => {
+  res.send(req.user);
+};
 
-exports.logout = (req,res,next) => {
-    const { signedCookies = {} } = req
-    const { refreshToken } = signedCookies
+exports.logout = (req, res, next) => {
+  const { signedCookies = {} } = req;
+  const { refreshToken } = signedCookies;
 
-    User.findById(req.user._id)
-        .then((user) => {
-            const tokenIndex = user.refreshToken.findIndex(item => item.refreshToken === refreshToken)
+  User.findById(req.user._id)
+    .then((user) => {
+      const tokenIndex = user.refreshToken.findIndex(
+        (item) => item.refreshToken === refreshToken
+      );
 
-            if(tokenIndex !== -1){
-                user.refreshToken.id(user.refreshToken[tokenIndex]._id).remove()
-            }
+      if (tokenIndex !== -1) {
+        user.refreshToken.id(user.refreshToken[tokenIndex]._id).remove();
+      }
 
-            user.save((err, user) => {
-                if(err){
-                    res.status(500).send(err)
-                }else{
-                    res.clearCookie('refreshToken', COOKIE_OPTIONS)
-                    res.send({ success: true })
-                }
-            })
-        })
-        .catch((err) => next(err))
-}
+      user.save((err, user) => {
+        if (err) {
+          res.status(500).send(err);
+        } else {
+          res.clearCookie("refreshToken", COOKIE_OPTIONS);
+          res.send({ success: true });
+        }
+      });
+    })
+    .catch((err) => next(err));
+};
