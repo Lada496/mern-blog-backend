@@ -6,8 +6,7 @@
 - User: includes array of Session and array of Post Id
 - Post: inclues one unique User Id and array of Comment Id
 - Comment: includes Post Id
-  <img width="772" alt="Screen Shot 2022-03-11 at 9 40 30" src="https://user-images.githubusercontent.com/67321065/157935599-631459c0-b5c8-4c8d-b8cf-56ba94f808f1.png">
-
+  <img width="814" alt="Screen Shot 2022-04-20 at 20 52 24" src="https://user-images.githubusercontent.com/67321065/164369101-1c7fa57f-7753-4ed2-b05a-c12ef8226685.png">
 
 ## APIs
 
