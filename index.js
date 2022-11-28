@@ -10,15 +10,15 @@ const passport = require("passport");
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
-require("../utils/db");
-require("../strategies/JwtStrategy");
-require("../strategies/LocalStrategy");
-require("../middleware/authenticate");
+require("./utils/db");
+require("./strategies/JwtStrategy");
+require("./strategies/LocalStrategy");
+require("./middleware/authenticate");
 
 //import router here
-const usersRoutes = require("../routes/users.route");
-const postsRoutes = require("../routes/posts.route");
-const commentRoutes = require("../routes/comment.router");
+const usersRoutes = require("./routes/users.route");
+const postsRoutes = require("./routes/posts.route");
+const commentRoutes = require("./routes/comment.router");
 
 const app = express();
 
